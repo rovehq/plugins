@@ -1,0 +1,11 @@
+/Users/as/org/rove/plugins/target/wasm32-wasip1/release/deps/extism_convert-5cd42f0e93d72d24.d: /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/lib.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/encoding.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/from_bytes.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/memory_handle.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/to_bytes.rs
+
+/Users/as/org/rove/plugins/target/wasm32-wasip1/release/deps/libextism_convert-5cd42f0e93d72d24.rlib: /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/lib.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/encoding.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/from_bytes.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/memory_handle.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/to_bytes.rs
+
+/Users/as/org/rove/plugins/target/wasm32-wasip1/release/deps/libextism_convert-5cd42f0e93d72d24.rmeta: /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/lib.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/encoding.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/from_bytes.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/memory_handle.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/to_bytes.rs
+
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/lib.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/encoding.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/from_bytes.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/memory_handle.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/to_bytes.rs:

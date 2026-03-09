@@ -1,0 +1,12 @@
+/Users/as/workspace/rove/plugins/target/debug/deps/extism_pdk-39041ceb9227e709.d: /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/lib.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/macros.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/extism.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/memory.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/to_memory.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/config.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/var.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/http.rs
+
+/Users/as/workspace/rove/plugins/target/debug/deps/libextism_pdk-39041ceb9227e709.rmeta: /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/lib.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/macros.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/extism.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/memory.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/to_memory.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/config.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/var.rs /Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/http.rs
+
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/lib.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/macros.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/extism.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/memory.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/to_memory.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/config.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/var.rs:
+/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/http.rs:

@@ -1,0 +1,76 @@
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/as/workspace/rove/plugins/fs-editor/Cargo.toml
+workspace: /Users/as/workspace/rove/plugins/Cargo.toml
+warning: virtual workspace defaulting to `resolver = "1"` despite one or more workspace members being on edition 2021 which implies `resolver = "2"`
+  |
+  = note: to keep the current resolver, specify `workspace.resolver = "1"` in the workspace root's manifest
+  = note: to use the edition 2021 resolver, specify `workspace.resolver = "2"` in the workspace root's manifest
+  = note: for more details see https://doc.rust-lang.org/cargo/reference/resolver.html#resolver-versions
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   0.208999250s  INFO prepare_target{force=false package_id=fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor) target="fs_editor"}: cargo::core::compiler::fingerprint: dependency on `prost_derive` is newer than we are 1773037332.843494353s > 1773036064.383813940s "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/prost-0.14.3"
+   0.209431459s  INFO prepare_target{force=false package_id=fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor) target="fs_editor"}: cargo::core::compiler::fingerprint: dependency on `build_script_build` is newer than we are 1773037330.432995553s > 1773036064.368687367s "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-traits-0.2.19"
+   0.209715750s  INFO prepare_target{force=false package_id=fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor) target="fs_editor"}: cargo::core::compiler::fingerprint: dependency on `build_script_build` is newer than we are 1773037330.199668511s > 1773036064.408432256s "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.228"
+   0.209780750s  INFO prepare_target{force=false package_id=fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor) target="fs_editor"}: cargo::core::compiler::fingerprint: dependency on `serde_derive` is newer than we are 1773037333.297633445s > 1773036064.399931304s "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228"
+   0.210355709s  INFO prepare_target{force=false package_id=fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor) target="fs_editor"}: cargo::core::compiler::fingerprint: dependency on `build_script_build` is newer than we are 1773037330.199637219s > 1773036064.462131301s "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.21"
+   0.210795792s  INFO prepare_target{force=false package_id=fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor) target="fs_editor"}: cargo::core::compiler::fingerprint: fingerprint dirty for fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("fs_editor", ["cdylib"], "/Users/as/workspace/rove/plugins/fs-editor/src/lib.rs", Edition2021) }
+   0.211223209s  INFO prepare_target{force=false package_id=fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor) target="fs_editor"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "serde" })
+   0.212475125s  INFO prepare_target{force=false package_id=extism-pdk v1.4.1 target="extism_pdk"}: cargo::core::compiler::fingerprint: fingerprint dirty for extism-pdk v1.4.1/Check { test: false }/TargetInner { ..: lib_target("extism_pdk", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-pdk-1.4.1/src/lib.rs", Edition2021) }
+   0.212481000s  INFO prepare_target{force=false package_id=extism-pdk v1.4.1 target="extism_pdk"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "extism_convert" })
+   0.214083042s  INFO prepare_target{force=false package_id=extism-convert v1.13.0 target="extism_convert"}: cargo::core::compiler::fingerprint: fingerprint dirty for extism-convert v1.13.0/Check { test: false }/TargetInner { ..: lib_target("extism_convert", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-convert-1.13.0/src/lib.rs", Edition2021) }
+   0.214087667s  INFO prepare_target{force=false package_id=extism-convert v1.13.0 target="extism_convert"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "prost" })
+   0.217925542s  INFO prepare_target{force=false package_id=prost v0.14.3 target="prost"}: cargo::core::compiler::fingerprint: fingerprint dirty for prost v0.14.3/Check { test: false }/TargetInner { benched: false, ..: lib_target("prost", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/prost-0.14.3/src/lib.rs", Edition2021) }
+   0.217930875s  INFO prepare_target{force=false package_id=prost v0.14.3 target="prost"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { name: "prost_derive", dep_mtime: FileTime { seconds: 1773037332, nanos: 843494353 }, max_mtime: FileTime { seconds: 1773036064, nanos: 383813940 } })
+   0.219911750s  INFO prepare_target{force=false package_id=rmp-serde v1.3.1 target="rmp_serde"}: cargo::core::compiler::fingerprint: fingerprint dirty for rmp-serde v1.3.1/Check { test: false }/TargetInner { ..: lib_target("rmp_serde", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rmp-serde-1.3.1/src/lib.rs", Edition2024) }
+   0.219919209s  INFO prepare_target{force=false package_id=rmp-serde v1.3.1 target="rmp_serde"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "rmp" })
+   0.220721209s  INFO prepare_target{force=false package_id=rmp v0.8.15 target="rmp"}: cargo::core::compiler::fingerprint: fingerprint dirty for rmp v0.8.15/Check { test: false }/TargetInner { ..: lib_target("rmp", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rmp-0.8.15/src/lib.rs", Edition2024) }
+   0.220725375s  INFO prepare_target{force=false package_id=rmp v0.8.15 target="rmp"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "num_traits" })
+   0.221121750s  INFO prepare_target{force=false package_id=num-traits v0.2.19 target="num_traits"}: cargo::core::compiler::fingerprint: fingerprint dirty for num-traits v0.2.19/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("num_traits", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-traits-0.2.19/src/lib.rs", Edition2021) }
+   0.221127209s  INFO prepare_target{force=false package_id=num-traits v0.2.19 target="num_traits"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { name: "build_script_build", dep_mtime: FileTime { seconds: 1773037330, nanos: 432995553 }, max_mtime: FileTime { seconds: 1773036064, nanos: 368687367 } })
+   0.222100500s  INFO prepare_target{force=false package_id=serde v1.0.228 target="serde"}: cargo::core::compiler::fingerprint: fingerprint dirty for serde v1.0.228/Check { test: false }/TargetInner { ..: lib_target("serde", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs", Edition2021) }
+   0.222104667s  INFO prepare_target{force=false package_id=serde v1.0.228 target="serde"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { name: "serde_derive", dep_mtime: FileTime { seconds: 1773037333, nanos: 297633445 }, max_mtime: FileTime { seconds: 1773036064, nanos: 399931304 } })
+   0.222676459s  INFO prepare_target{force=false package_id=serde_core v1.0.228 target="serde_core"}: cargo::core::compiler::fingerprint: fingerprint dirty for serde_core v1.0.228/Check { test: false }/TargetInner { ..: lib_target("serde_core", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.228/src/lib.rs", Edition2021) }
+   0.222680500s  INFO prepare_target{force=false package_id=serde_core v1.0.228 target="serde_core"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { name: "build_script_build", dep_mtime: FileTime { seconds: 1773037330, nanos: 199668511 }, max_mtime: FileTime { seconds: 1773036064, nanos: 408432256 } })
+   0.223692459s  INFO prepare_target{force=false package_id=serde_json v1.0.149 target="serde_json"}: cargo::core::compiler::fingerprint: fingerprint dirty for serde_json v1.0.149/Check { test: false }/TargetInner { ..: lib_target("serde_json", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.149/src/lib.rs", Edition2021) }
+   0.223696459s  INFO prepare_target{force=false package_id=serde_json v1.0.149 target="serde_json"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "serde_core" })
+   0.225018542s  INFO prepare_target{force=false package_id=zmij v1.0.21 target="zmij"}: cargo::core::compiler::fingerprint: fingerprint dirty for zmij v1.0.21/Check { test: false }/TargetInner { ..: lib_target("zmij", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.21/src/lib.rs", Edition2021) }
+   0.225022584s  INFO prepare_target{force=false package_id=zmij v1.0.21 target="zmij"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { name: "build_script_build", dep_mtime: FileTime { seconds: 1773037330, nanos: 199637219 }, max_mtime: FileTime { seconds: 1773036064, nanos: 462131301 } })
+   0.226381167s  INFO prepare_target{force=false package_id=extism-manifest v1.13.0 target="extism_manifest"}: cargo::core::compiler::fingerprint: fingerprint dirty for extism-manifest v1.13.0/Check { test: false }/TargetInner { ..: lib_target("extism_manifest", ["lib"], "/Users/as/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/extism-manifest-1.13.0/src/lib.rs", Edition2021) }
+   0.226387167s  INFO prepare_target{force=false package_id=extism-manifest v1.13.0 target="extism_manifest"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "serde" })
+   0.226981792s  INFO prepare_target{force=false package_id=fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor) target="fs_editor"}: cargo::core::compiler::fingerprint: fingerprint error for fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("fs_editor", ["cdylib"], "/Users/as/workspace/rove/plugins/fs-editor/src/lib.rs", Edition2021) }
+   0.226986417s  INFO prepare_target{force=false package_id=fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor) target="fs_editor"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/as/workspace/rove/plugins/target/debug/.fingerprint/fs-editor-aa0b0b0fcd98c8ff/test-lib-fs_editor`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: cargo_util::paths::read_bytes
+   2: cargo_util::paths::read
+   3: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   4: cargo::core::compiler::fingerprint::prepare_target
+   5: cargo::core::compiler::compile
+   6: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   7: cargo::ops::cargo_compile::compile_ws
+   8: cargo::ops::cargo_compile::compile_with_exec
+   9: cargo::ops::cargo_compile::compile
+  10: cargo::commands::check::exec
+  11: <cargo::cli::Exec>::exec
+  12: cargo::main
+  13: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  14: std::rt::lang_start::<()>::{closure#0}
+  15: std::rt::lang_start_internal
+  16: _main
+    Checking serde_core v1.0.228
+    Checking num-traits v0.2.19
+    Checking zmij v1.0.21
+    Checking prost v0.14.3
+    Checking rmp v0.8.15
+    Checking serde v1.0.228
+    Checking serde_json v1.0.149
+    Checking rmp-serde v1.3.1
+    Checking extism-manifest v1.13.0
+    Checking extism-convert v1.13.0
+    Checking extism-pdk v1.4.1
+    Checking fs-editor v0.1.0 (/Users/as/workspace/rove/plugins/fs-editor)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.75s

@@ -1,0 +1,197 @@
+name: Plugins — Build, Validate & Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.rs"
+      - "**/Cargo.toml"
+      - "Cargo.lock"
+  pull_request:
+    branches: [main]
+    paths:
+      - "**/*.rs"
+      - "**/Cargo.toml"
+      - "Cargo.lock"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ── Build & Validate WASM ──────────────────────
+  build:
+    name: Build WASM Plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip1
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install wasmtools
+        run: cargo install wasm-tools || true
+
+      - name: Build and validate each plugin
+        run: |
+          mkdir -p artifacts/plugins
+
+          for plugin_dir in */; do
+            [ ! -f "$plugin_dir/Cargo.toml" ] && continue
+            plugin_name=$(basename "$plugin_dir")
+
+            echo "=== Building: $plugin_name ==="
+            (cd "$plugin_dir" && cargo build --target wasm32-wasip1 --release)
+
+            version=$(grep '^version' "$plugin_dir/Cargo.toml" | head -1 | sed 's/.*"\(.*\)".*/\1/')
+            wasm_name=$(echo "$plugin_name" | tr '-' '_')
+            wasm_path="${plugin_dir}target/wasm32-wasip1/release/${wasm_name}.wasm"
+
+            if [ -f "$wasm_path" ]; then
+              echo "Validating $wasm_path..."
+              wasm-tools validate "$wasm_path" || true
+
+              mkdir -p "artifacts/plugins/$plugin_name/$version"
+              cp "$wasm_path" "artifacts/plugins/$plugin_name/$version/"
+
+              sha256sum "$wasm_path" >> artifacts/checksums.txt
+              echo "✓ $plugin_name v$version"
+            fi
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugins
+          path: artifacts/
+          retention-days: 1
+
+  # ── Deploy to R2 ───────────────────────────────
+  deploy:
+    name: Deploy to R2
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: plugins
+          path: artifacts/
+
+      - name: Prepare R2 directory
+        run: |
+          mkdir -p .r2_upload
+          cp -r artifacts/plugins/ .r2_upload/plugins/
+          find .r2_upload -type f | sort
+
+      - name: Deploy to Cloudflare R2
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks
+        env:
+          AWS_S3_BUCKET: ${{ secrets.R2_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_REGION: "auto"
+          AWS_S3_ENDPOINT: ${{ secrets.R2_API_URL }}
+          SOURCE_DIR: ".r2_upload"
+
+  # ── Update Registry ────────────────────────────
+  update-registry:
+    name: Update Registry
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: plugins
+          path: artifacts/
+
+      - name: Update registry with artifacts and manifests
+        env:
+          REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
+        run: |
+          set -e
+
+          git clone https://x-access-token:${REGISTRY_PAT}@github.com/orvislab/rove-registry.git /tmp/registry
+
+          COMMIT=$(git rev-parse --short HEAD)
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          R2_BASE="https://registry.roveai.co"
+          GH_RAW="https://raw.githubusercontent.com/orvislab/rove-registry/main"
+
+          # ── Copy WASM artifacts + update manifest ──
+          for plugin_dir in artifacts/plugins/*/; do
+            [ ! -d "$plugin_dir" ] && continue
+            PLUGIN_NAME=$(basename "$plugin_dir")
+
+            for version_dir in "$plugin_dir"*/; do
+              [ ! -d "$version_dir" ] && continue
+              VERSION=$(basename "$version_dir")
+
+              for wasm in "$version_dir"*.wasm; do
+                [ ! -f "$wasm" ] && continue
+                HASH=$(sha256sum "$wasm" | cut -d' ' -f1)
+                SIZE=$(stat --format=%s "$wasm" 2>/dev/null || stat -f%z "$wasm" 2>/dev/null)
+                WASM_FILE=$(basename "$wasm")
+
+                mkdir -p "/tmp/registry/releases/plugins/${PLUGIN_NAME}/${VERSION}"
+                cp "$wasm" "/tmp/registry/releases/plugins/${PLUGIN_NAME}/${VERSION}/${WASM_FILE}"
+
+                cd /tmp/registry
+                jq --arg name "$PLUGIN_NAME" \
+                   --arg ver "$VERSION" \
+                   --arg url "$R2_BASE/plugins/$PLUGIN_NAME/$VERSION/$WASM_FILE" \
+                   --arg fallback "$GH_RAW/releases/plugins/$PLUGIN_NAME/$VERSION/$WASM_FILE" \
+                   --arg sha "$HASH" \
+                   --argjson sz "${SIZE:-0}" \
+                   '.plugins[$name] = {"version": $ver, "author": "Rove Team", "trust_tier": 1, "url": $url, "fallback_url": $fallback, "sha256": $sha, "size_bytes": $sz}' \
+                   manifest.json > /tmp/m.json && mv /tmp/m.json manifest.json
+                cd -
+              done
+            done
+          done
+
+          # ── Build history ──
+          BUILDS_JSON="[]"
+          for plugin_dir in artifacts/plugins/*/; do
+            [ ! -d "$plugin_dir" ] && continue
+            PLUGIN_NAME=$(basename "$plugin_dir")
+            for version_dir in "$plugin_dir"*/; do
+              [ ! -d "$version_dir" ] && continue
+              VERSION=$(basename "$version_dir")
+              for wasm in "$version_dir"*.wasm; do
+                [ ! -f "$wasm" ] && continue
+                HASH=$(sha256sum "$wasm" | cut -d' ' -f1)
+                SIZE=$(stat --format=%s "$wasm" 2>/dev/null || stat -f%z "$wasm" 2>/dev/null)
+                BUILDS_JSON=$(echo "$BUILDS_JSON" | jq \
+                  --arg name "$PLUGIN_NAME" --arg ver "$VERSION" --arg commit "$COMMIT" \
+                  --arg ts "$TIMESTAMP" --arg sha "$HASH" --argjson sz "${SIZE:-0}" \
+                  '. += [{"plugin": $name, "version": $ver, "commit": $commit, "built_at": $ts, "sha256": $sha, "size_bytes": $sz}]')
+              done
+            done
+          done
+
+          jq --argjson new "$BUILDS_JSON" '.builds += $new' \
+            /tmp/registry/history/plugins.json > /tmp/p.json && mv /tmp/p.json /tmp/registry/history/plugins.json
+
+          # ── Commit + push ──
+          cd /tmp/registry
+          jq --arg ts "$TIMESTAMP" '.last_updated = $ts' manifest.json > /tmp/m.json && mv /tmp/m.json manifest.json
+
+          git config user.name "rove-ci"
+          git config user.email "ci@roveai.co"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "release: plugins (${COMMIT}) — $(date -u +%Y-%m-%d)"
+            git push
+          fi

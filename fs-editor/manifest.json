@@ -1,0 +1,41 @@
+{
+  "id": "fs-editor",
+  "name": "File System Editor",
+  "version": "1.0.0",
+  "description": "Read, write, and delete files inside the Rove workspace.",
+  "author": "Rove Team",
+  "trust_tier": 1,
+  "plugin": {
+    "wasm_file": "fs_editor.wasm",
+    "allowed_hosts": [],
+    "allowed_imports": ["extism:host/env"],
+    "requires_network": false
+  },
+  "tools": [
+    {
+      "name": "read_file",
+      "description": "Reads a file from the workspace",
+      "parameters": {
+        "path": "String"
+      },
+      "risk_tier": 0
+    },
+    {
+      "name": "write_file",
+      "description": "Writes content to a file in the workspace",
+      "parameters": {
+        "path": "String",
+        "content": "String"
+      },
+      "risk_tier": 1
+    },
+    {
+      "name": "delete_file",
+      "description": "Deletes a file from the workspace",
+      "parameters": {
+        "path": "String"
+      },
+      "risk_tier": 2
+    }
+  ]
+}
