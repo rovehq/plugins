@@ -1,0 +1,17 @@
+[package]
+name = "filesystem-extended"
+version = "0.1.0"
+edition = "2021"
+authors = ["Rove Team"]
+license = "MIT"
+description = "Extended filesystem tools for Rove (patch_file, append_to_file, delete_file, file_exists, glob_files, grep_files)"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+sdk = { path = "../../core/sdk" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["fs"] }
+glob = "0.3"
