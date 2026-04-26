@@ -14,6 +14,11 @@ on:
       - "**/*.rs"
       - "**/Cargo.toml"
       - "Cargo.lock"
+  schedule:
+    # Nightly dev pre-build at 22:00 UTC — aligns with core/ so all
+    # channel artifacts land on R2 before the 00:00 UTC auto-update.
+    - cron: "0 22 * * *"
+  workflow_dispatch: {}
 
 env:
   CARGO_TERM_COLOR: always
