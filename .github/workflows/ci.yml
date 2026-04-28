@@ -89,7 +89,9 @@ jobs:
     needs: [resolve-channel, build]
     if: |
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      startsWith(github.ref, 'refs/tags/v')
+      startsWith(github.ref, 'refs/tags/v') ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -112,7 +114,7 @@ jobs:
         with:
           args: --acl public-read --follow-symlinks
         env:
-          AWS_S3_BUCKET: ${{ secrets.R2_BUCKET_NAME }}
+          AWS_S3_BUCKET: ${{ secrets.REGISTRY_R2_BUCKET_NAME }}
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           AWS_REGION: "auto"
@@ -124,7 +126,9 @@ jobs:
     needs: [resolve-channel, build]
     if: |
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      startsWith(github.ref, 'refs/tags/v')
+      startsWith(github.ref, 'refs/tags/v') ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -146,12 +150,12 @@ jobs:
           CHANNEL: ${{ needs.resolve-channel.outputs.channel }}
         run: |
           set -e
-          git clone https://x-access-token:${REGISTRY_PAT}@github.com/orvislab/rove-registry.git /tmp/registry
+          git clone https://x-access-token:${REGISTRY_PAT}@github.com/rovehq/registry.git /tmp/registry
 
           COMMIT=$(git rev-parse --short HEAD)
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           R2_BASE="https://registry.roveai.co"
-          GH_RAW="https://raw.githubusercontent.com/orvislab/rove-registry/main"
+          GH_RAW="https://raw.githubusercontent.com/rovehq/registry/main"
 
           MANIFEST="/tmp/registry/${CHANNEL}/plugins/manifest.json"
           mkdir -p "$(dirname "$MANIFEST")"
