@@ -33,18 +33,33 @@ import time
 from pathlib import Path
 
 
-def make_pem(hex_key: str, pem_path: str):
-    cleaned = hex_key.strip()
+PKCS8_ED25519_PREFIX = bytes.fromhex("302e020100300506032b657004220420")
+
+
+def make_pem(key_input: str, pem_path: str):
+    import base64
+    cleaned = key_input.strip()
+    # Accept: 64-char hex seed, 32-byte hex seed, or base64-encoded PKCS8 DER (48 bytes)
     try:
         raw = bytes.fromhex(cleaned)
-    except ValueError as e:
-        print(f"ERROR: key is not valid hex (len={len(cleaned)}, first chars={repr(cleaned[:8])}): {e}", file=sys.stderr)
-        sys.exit(1)
-    if len(raw) != 32:
-        raise ValueError(f"Ed25519 seed must be 32 bytes, got {len(raw)}")
-    prefix = bytes.fromhex("302e020100300506032b657004220420")
-    import base64
-    der = prefix + raw
+        if len(raw) == 48 and raw[:16] == PKCS8_ED25519_PREFIX:
+            # Stored as hex of the full PKCS8 DER — strip prefix
+            raw = raw[16:]
+        elif len(raw) != 32:
+            raise ValueError(f"Ed25519 seed must be 32 bytes, got {len(raw)}")
+        der = PKCS8_ED25519_PREFIX + raw
+    except ValueError:
+        # Try base64 (DER stored as base64 without PEM headers)
+        try:
+            der = base64.b64decode(cleaned)
+            if len(der) == 48 and der[:16] == PKCS8_ED25519_PREFIX:
+                pass  # valid PKCS8 DER
+            else:
+                print(f"ERROR: key is neither valid hex seed nor base64 PKCS8 DER (len={len(der)})", file=sys.stderr)
+                sys.exit(1)
+        except Exception as e2:
+            print(f"ERROR: cannot parse key (first chars={repr(cleaned[:8])}): {e2}", file=sys.stderr)
+            sys.exit(1)
     pem = "-----BEGIN PRIVATE KEY-----\n" + base64.encodebytes(der).decode() + "-----END PRIVATE KEY-----\n"
     Path(pem_path).write_text(pem)
 
