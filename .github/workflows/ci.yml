@@ -52,18 +52,14 @@ jobs:
       - name: Install tools
         run: |
           cargo install wasm-tools 2>/dev/null || true
-          sudo apt-get update -qq && sudo apt-get install -y -qq openssl xxd 2>/dev/null || true
+          sudo apt-get update -qq && sudo apt-get install -y -qq openssl 2>/dev/null || true
 
       - name: Build, sign & bundle each plugin
         env:
           OFFICIAL_PRIV: ${{ secrets.ROVE_TEAM_OFFICIAL_PRIVATE_KEY }}
         run: |
           set -e
-          mkdir -p artifacts/plugins artifacts/registry
-
-          echo "$OFFICIAL_PRIV" > /tmp/official_priv.hex
-
-          TIMESTAMP=$(date +%s)
+          mkdir -p artifacts/registry
 
           for plugin_dir in */; do
             [ ! -f "${plugin_dir}Cargo.toml" ] && continue
@@ -73,232 +69,24 @@ jobs:
             echo "=== Building: $plugin_name ==="
             (cd "$plugin_dir" && cargo build --target wasm32-wasip1 --release)
 
-            version=$(python3 -c "import json; print(json.load(open('${plugin_dir}manifest.json'))['version'])")
             wasm_name=$(echo "$plugin_name" | tr '-' '_')
             wasm_src="${plugin_dir}target/wasm32-wasip1/release/${wasm_name}.wasm"
-
-            if [ ! -f "$wasm_src" ]; then
-              echo "  WARN: no wasm at $wasm_src, skipping"
-              continue
-            fi
+            [ ! -f "$wasm_src" ] && echo "  WARN: no wasm, skipping" && continue
 
             wasm-tools validate "$wasm_src" || true
 
-            payload_hash=$(sha256sum "$wasm_src" | cut -d' ' -f1)
-            echo -n "$payload_hash" > /tmp/hash_str.bin
-
-            python3 -c "
-import binascii, base64, sys
-raw = open('/tmp/official_priv.hex').read().strip()
-b = binascii.unhexlify(raw)
-prefix = bytes.fromhex('302e020100300506032b657004220420')
-der = prefix + b
-pem = '-----BEGIN PRIVATE KEY-----\n' + base64.encodebytes(der).decode() + '-----END PRIVATE KEY-----\n'
-open('/tmp/official.pem', 'w').write(pem)
-"
-            openssl pkeyutl -sign -rawin -inkey /tmp/official.pem -in /tmp/hash_str.bin -out /tmp/payload_sig.bin
-            payload_sig=$(xxd -p /tmp/payload_sig.bin | tr -d '\n')
-            rm -f /tmp/hash_str.bin /tmp/payload_sig.bin
-
-            plugin_id=$(echo "$plugin_name" | tr '_' '-')
-            bundle_dir="artifacts/registry/${plugin_id}/${version}"
-            mkdir -p "$bundle_dir"
-
-            cp "$wasm_src" "$bundle_dir/${wasm_name}.wasm"
-            cp "${plugin_dir}manifest.json" "$bundle_dir/manifest.json"
-
-            runtime_rel=""
-            if [ -f "${plugin_dir}runtime.json" ]; then
-              cp "${plugin_dir}runtime.json" "$bundle_dir/runtime.json"
-              runtime_rel="runtime.json"
-            fi
-
-            readme_rel=""
-            if [ -f "${plugin_dir}README.md" ]; then
-              cp "${plugin_dir}README.md" "$bundle_dir/README.md"
-              readme_rel="README.md"
-            fi
-
-            trust_tier=$(python3 -c "import json; print(json.load(open('${plugin_dir}manifest.json')).get('trust_tier','Official'))")
-
-            python3 - "$bundle_dir" "$plugin_id" "$wasm_name" "$payload_hash" "$payload_sig" "$runtime_rel" "$version" "$trust_tier" << 'PYEOF'
-import json, sys
-
-bundle_dir, plugin_id, wasm_name, payload_hash, payload_sig, runtime_rel, version, trust_tier = sys.argv[1:]
-
-pkg = {
-    "id": plugin_id,
-    "artifact": f"{wasm_name}.wasm",
-    "runtime_config": runtime_rel,
-    "payload_hash": payload_hash,
-    "payload_signature": payload_sig,
-    "enabled": True
-}
-open(f"{bundle_dir}/plugin-package.json", "w").write(json.dumps(pkg, indent=2))
-PYEOF
-
-            python3 - "$bundle_dir" "$plugin_id" "$plugin_name" "$version" "$trust_tier" "$wasm_name" "$runtime_rel" "$TIMESTAMP" << 'PYEOF'
-import json, sys
-
-bundle_dir, plugin_id, plugin_name, version, trust_tier, wasm_name, runtime_rel, ts = sys.argv[1:]
-ts = int(ts)
-
-rel = {
-    "id": plugin_id,
-    "name": plugin_name,
-    "version": version,
-    "plugin_type": "Workspace",
-    "trust_tier": trust_tier,
-    "generated_at": ts,
-    "signed_at": 0,
-    "signature": "",
-    "artifact": f"{wasm_name}.wasm",
-    "runtime_config": runtime_rel
-}
-open(f"{bundle_dir}/release.json", "w").write(json.dumps(rel, indent=2))
-PYEOF
-
-            python3 - "$bundle_dir/release.json" /tmp/official.pem << 'PYEOF'
-import json, sys, subprocess
-
-json_file, pem_file = sys.argv[1:]
-import time
-signed_at = int(time.time())
-
-d = json.load(open(json_file))
-d.pop("signature", None)
-d.pop("signed_at", None)
-canon = json.dumps(d, sort_keys=True, separators=(",", ":"))
-open("/tmp/sign_canon.bin", "wb").write(canon.encode())
-
-subprocess.run(["openssl", "pkeyutl", "-sign", "-rawin",
-                "-inkey", pem_file, "-in", "/tmp/sign_canon.bin",
-                "-out", "/tmp/sign_out.bin"], check=True)
-sig = open("/tmp/sign_out.bin","rb").read().hex()
-
-d["signed_at"] = signed_at
-d["signature"] = sig
-open(json_file, "w").write(json.dumps(d, indent=2))
-PYEOF
-
-            python3 - "artifacts/registry" "$plugin_id" "$plugin_name" "$version" "$trust_tier" "$wasm_name" "$runtime_rel" "$readme_rel" "$TIMESTAMP" << 'PYEOF'
-import json, sys
-
-registry_dir, plugin_id, plugin_name, version, trust_tier, wasm_name, runtime_rel, readme_rel, ts = sys.argv[1:]
-ts = int(ts)
-import os
-
-index_file = f"{registry_dir}/{plugin_id}/index.json"
-bundle_rel = f"{plugin_id}/{version}"
-
-try:
-    idx = json.load(open(index_file))
-except Exception:
-    idx = {
-        "schema_version": "1",
-        "generated_at": ts,
-        "signed_at": 0,
-        "signature": "",
-        "plugin": {
-            "id": plugin_id,
-            "name": plugin_name,
-            "plugin_type": "Workspace",
-            "trust_tier": trust_tier,
-            "latest_version": version,
-            "index_path": f"{plugin_id}/index.json"
-        },
-        "versions": []
-    }
-
-idx["generated_at"] = ts
-idx["plugin"]["latest_version"] = version
-
-idx["versions"] = [v for v in idx["versions"] if v["version"] != version]
-idx["versions"].insert(0, {
-    "version": version,
-    "published_at": ts,
-    "bundle_path": bundle_rel,
-    "manifest_path": f"{bundle_rel}/manifest.json",
-    "package_path": f"{bundle_rel}/plugin-package.json",
-    "runtime_path": f"{bundle_rel}/runtime.json" if runtime_rel else None,
-    "artifact_path": f"{bundle_rel}/{wasm_name}.wasm",
-    "artifact_sidecar_path": None,
-    "readme_path": f"{bundle_rel}/README.md" if readme_rel else None,
-    "release_path": f"{bundle_rel}/release.json"
-})
-try:
-    from packaging.version import Version as V
-    idx["versions"].sort(key=lambda x: V(x["version"]), reverse=True)
-except Exception:
-    idx["versions"].sort(key=lambda x: x["version"], reverse=True)
-
-open(index_file, "w").write(json.dumps(idx, indent=2))
-PYEOF
-
-            python3 - "$bundle_dir/../index.json" /tmp/official.pem << 'PYEOF'
-import json, sys, subprocess, time
-
-json_file, pem_file = sys.argv[1:]
-signed_at = int(time.time())
-
-d = json.load(open(json_file))
-d.pop("signature", None)
-d.pop("signed_at", None)
-canon = json.dumps(d, sort_keys=True, separators=(",", ":"))
-open("/tmp/sign_canon.bin", "wb").write(canon.encode())
-subprocess.run(["openssl", "pkeyutl", "-sign", "-rawin",
-                "-inkey", pem_file, "-in", "/tmp/sign_canon.bin",
-                "-out", "/tmp/sign_out.bin"], check=True)
-sig = open("/tmp/sign_out.bin","rb").read().hex()
-d["signed_at"] = signed_at
-d["signature"] = sig
-open(json_file, "w").write(json.dumps(d, indent=2))
-PYEOF
-
-            echo "  done: $plugin_id v$version"
+            python3 scripts/ci-bundle.py \
+              --plugin-dir "$plugin_dir" \
+              --wasm-file "$wasm_src" \
+              --registry-dir artifacts/registry \
+              --official-key-hex "$OFFICIAL_PRIV"
           done
 
-          python3 - "artifacts/registry" "$TIMESTAMP" /tmp/official.pem << 'PYEOF'
-import json, sys, subprocess, glob, time
+          python3 scripts/ci-bundle.py \
+            --finalize-catalog \
+            --registry-dir artifacts/registry \
+            --official-key-hex "$OFFICIAL_PRIV"
 
-registry_dir, ts, pem_file = sys.argv[1:]
-ts = int(ts)
-
-catalog_file = f"{registry_dir}/registry.json"
-try:
-    catalog = json.load(open(catalog_file))
-except Exception:
-    catalog = {"schema_version": "1", "generated_at": ts, "signed_at": 0, "signature": "", "plugins": []}
-
-catalog["generated_at"] = ts
-plugins = []
-for f in glob.glob(f"{registry_dir}/*/index.json"):
-    try:
-        idx = json.load(open(f))
-        plugins.append(idx["plugin"])
-    except Exception:
-        pass
-plugins.sort(key=lambda x: x.get("name",""))
-catalog["plugins"] = plugins
-open(catalog_file, "w").write(json.dumps(catalog, indent=2))
-
-d = json.load(open(catalog_file))
-d.pop("signature", None)
-d.pop("signed_at", None)
-canon = json.dumps(d, sort_keys=True, separators=(",", ":"))
-open("/tmp/sign_canon.bin", "wb").write(canon.encode())
-subprocess.run(["openssl", "pkeyutl", "-sign", "-rawin",
-                "-inkey", pem_file, "-in", "/tmp/sign_canon.bin",
-                "-out", "/tmp/sign_out.bin"], check=True)
-sig = open("/tmp/sign_out.bin","rb").read().hex()
-d["signed_at"] = int(time.time())
-d["signature"] = sig
-open(catalog_file, "w").write(json.dumps(d, indent=2))
-PYEOF
-
-          shred -u /tmp/official_priv.hex /tmp/official.pem 2>/dev/null || rm -f /tmp/official_priv.hex /tmp/official.pem
-
-          echo "=== Bundle summary ==="
           find artifacts/ -type f | sort
 
       - uses: actions/upload-artifact@v4
@@ -329,7 +117,7 @@ PYEOF
           CHANNEL: ${{ needs.resolve-channel.outputs.channel }}
         run: |
           mkdir -p ".r2_upload/${CHANNEL}/plugins"
-          cp -r artifacts/registry/. ".r2_upload/${CHANNEL}/plugins/" 2>/dev/null || true
+          cp -r artifacts/registry/. ".r2_upload/${CHANNEL}/plugins/"
           find .r2_upload -type f | sort
 
       - name: Deploy to Cloudflare R2
