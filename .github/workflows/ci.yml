@@ -253,7 +253,7 @@ jobs:
           find .r2_upload -type f | sort
 
       - name: Install awscli
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq awscli
+        run: pip3 install --quiet awscli
 
       - name: Deploy to Cloudflare R2
         env:
