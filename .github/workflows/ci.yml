@@ -1,4 +1,4 @@
-name: Plugins — Build, Sign & Deploy (official)
+name: Extensions — Build, Sign & Deploy (official)
 
 on:
   push:
@@ -37,7 +37,7 @@ jobs:
           fi
 
   build:
-    name: Build & Sign Official WASM Plugins (${{ needs.resolve-channel.outputs.channel }})
+    name: Build & Sign Official Extensions (${{ needs.resolve-channel.outputs.channel }})
     needs: [resolve-channel]
     runs-on: ubuntu-latest
     steps:
@@ -58,14 +58,15 @@ jobs:
           cargo install wasm-tools 2>/dev/null || true
           sudo apt-get update -qq && sudo apt-get install -y -qq openssl 2>/dev/null || true
 
-      - name: Build, sign & bundle each plugin
+      - name: Build, sign & bundle each extension
         env:
           OFFICIAL_PRIV: ${{ secrets.ROVE_TEAM_OFFICIAL_PRIVATE_KEY }}
         run: |
           set -e
           mkdir -p artifacts/registry
 
-          for plugin_dir in */; do
+          for plugin_dir in plugins/*/ native/*/ channels/*/; do
+            [ ! -d "$plugin_dir" ] && continue
             [ ! -f "${plugin_dir}Cargo.toml" ] && continue
             [ ! -f "${plugin_dir}manifest.json" ] && continue
             plugin_name=$(basename "$plugin_dir" | tr -d '/')
@@ -98,7 +99,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: plugins-${{ needs.resolve-channel.outputs.channel }}
+          name: extensions-${{ needs.resolve-channel.outputs.channel }}
           path: artifacts/
           retention-days: 1
 
@@ -116,7 +117,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: plugins-${{ needs.resolve-channel.outputs.channel }}
+          name: extensions-${{ needs.resolve-channel.outputs.channel }}
           path: artifacts/
 
       - name: Prepare R2 layout
@@ -153,7 +154,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: plugins-${{ needs.resolve-channel.outputs.channel }}
+          name: extensions-${{ needs.resolve-channel.outputs.channel }}
           path: artifacts/
 
       - name: Push to registry repo
@@ -173,6 +174,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes."
           else
-            git commit -m "release(${CHANNEL}): official plugins (${COMMIT})"
+            git commit -m "release(${CHANNEL}): official extensions (${COMMIT})"
             git push
           fi

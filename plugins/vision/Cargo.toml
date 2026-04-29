@@ -10,6 +10,6 @@ description = "Vision tools for Rove (capture_screen)"
 crate-type = ["cdylib"]
 
 [dependencies]
-sdk = { path = "../../core/sdk" }
+sdk = { path = "../../../core/sdk" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

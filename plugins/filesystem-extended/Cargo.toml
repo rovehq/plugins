@@ -10,7 +10,7 @@ description = "Extended filesystem tools for Rove (patch_file, append_to_file, d
 crate-type = ["cdylib"]
 
 [dependencies]
-sdk = { path = "../../core/sdk" }
+sdk = { path = "../../../core/sdk" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", features = ["fs"] }

@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    "browser-cdp",
-    "filesystem-extended",
-    "fs-editor",
-    "vision",
+    "plugins/fs-editor",
+    "plugins/filesystem-extended",
+    "plugins/vision",
+    "native/browser-cdp",
 ]

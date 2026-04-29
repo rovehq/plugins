@@ -2,7 +2,7 @@
   "name": "browser-cdp",
   "version": "0.1.0",
   "sdk_version": "0.1.0",
-  "plugin_type": "Workspace",
+  "plugin_type": "Plugin",
   "permissions": {
     "filesystem": [],
     "network": ["*"],
