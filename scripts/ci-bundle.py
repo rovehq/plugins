@@ -140,6 +140,7 @@ def bundle_plugin(plugin_dir: str, wasm_file: str, registry_dir: str, pem_path: 
     import shutil
     shutil.copy(wasm_path, bundle_dir / f"{wasm_name}.wasm")
     shutil.copy(manifest_file, bundle_dir / "manifest.json")
+    sign_json(str(bundle_dir / "manifest.json"), json_sign_pem or pem_path)
 
     runtime_rel = ""
     if (plugin_path / "runtime.json").exists():
@@ -154,7 +155,7 @@ def bundle_plugin(plugin_dir: str, wasm_file: str, registry_dir: str, pem_path: 
     pkg = {
         "id": plugin_id,
         "artifact": f"{wasm_name}.wasm",
-        "runtime_config": runtime_rel,
+        "runtime_config": runtime_rel or None,
         "payload_hash": payload_hash,
         "payload_signature": payload_sig,
         "enabled": True,
@@ -166,7 +167,7 @@ def bundle_plugin(plugin_dir: str, wasm_file: str, registry_dir: str, pem_path: 
         "id": plugin_id,
         "name": plugin_name,
         "version": version,
-        "plugin_type": manifest.get("plugin_type", "Workspace"),
+        "plugin_type": manifest.get("plugin_type", "Plugin"),
         "trust_tier": trust_tier,
         "generated_at": ts,
         "signed_at": 0,
@@ -191,7 +192,7 @@ def bundle_plugin(plugin_dir: str, wasm_file: str, registry_dir: str, pem_path: 
             "plugin": {
                 "id": plugin_id,
                 "name": plugin_name,
-                "plugin_type": manifest.get("plugin_type", "Workspace"),
+                "plugin_type": manifest.get("plugin_type", "Plugin"),
                 "trust_tier": trust_tier,
                 "latest_version": version,
                 "index_path": f"{plugin_id}/index.json",
